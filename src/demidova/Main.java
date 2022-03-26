@@ -4,59 +4,50 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
+import java.util.zip.ZipInputStream;
 
 public class Main {
 
     public static void main(String[] args) {
-        List<GameProgress> gp = new ArrayList() {{
-            add(new GameProgress(10, 5, 3, 34.5));
-            add(new GameProgress(100, 29, 15, 105.9));
-            add(new GameProgress(200, 100, 76, 1046.98));
-        }};
+        int filesCount = 0;
 
-        File savegamesDir = new File("Games\\savegames");
+        //unzip
+        File zip = new File("Games", "savegames.zip");
+        File savegamesDir = new File(zip.getPath().substring(0, zip.getPath().length() - 4));
 
-        //serialize
-        for (int i = 0; i < gp.size(); i++) {
-            File saveDat = new File(savegamesDir, "save" + i + ".dat");
+        try (InputStream fis = new FileInputStream(zip);
+             ZipInputStream zis = new ZipInputStream(fis)) {
 
-            try {
-                saveDat.createNewFile();
-                FileOutputStream fos = new FileOutputStream(saveDat);
-                ObjectOutputStream oos = new ObjectOutputStream(fos);
-                oos.writeObject(gp.get(i));
-                oos.flush();
+            for (ZipEntry ze = zis.getNextEntry(); ze != null; ze = zis.getNextEntry(), filesCount++) {
+                String name = ze.getName().replaceAll("_bak", "");
+                File dat = new File(savegamesDir, name);
+                OutputStream fos = new FileOutputStream(dat);
+
+                for (int bytes = zis.read(); bytes != -1; bytes = zis.read()) {
+                    fos.write(bytes);
+                }
+
+                fos.flush();
+                zis.closeEntry();
                 fos.close();
-                oos.close();
-            } catch (IOException e) {
-                System.out.println(e.getLocalizedMessage());
-                System.exit(0);
-            }
-        }
-
-        //ZIP
-        File zip = new File(savegamesDir.getParent(), "savegames.zip");
-        try (OutputStream fos = new FileOutputStream(zip);
-             ZipOutputStream zos = new ZipOutputStream(fos)) {
-
-            for (int i = 0; i < gp.size(); i++) {
-                InputStream fis = new FileInputStream(new File(savegamesDir, "save" + i + ".dat"));
-                ZipEntry zeGP = new ZipEntry("save" + i + "_bak.dat");
-                zos.putNextEntry(zeGP);
-                byte[] gpBytes = new byte[fis.available()];
-                fis.read(gpBytes);
-                zos.write(gpBytes);
-                zos.closeEntry();
-                fis.close();
             }
         } catch (IOException e) {
             System.out.println(e.getLocalizedMessage());
         }
 
-        //delete non-ZIP
-        for (int i = 0; i < gp.size(); i++) {
-            new File(savegamesDir, "save" + i + ".dat").delete();
+        //deserialize all files
+        List<GameProgress> gp = new ArrayList<>();
+        for (File file : savegamesDir.listFiles()) {
+            if (file.isFile() && file.getName().contains(".dat")) {
+                try (InputStream fis = new FileInputStream(file);
+                     ObjectInputStream ois = new ObjectInputStream(fis)) {
+                    gp.add((GameProgress) ois.readObject());
+                } catch (Exception e) {
+                    System.out.println(e.getLocalizedMessage());
+                }
+            }
         }
+
+        gp.stream().forEach(System.out::println);
     }
 }
