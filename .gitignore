@@ -1,0 +1,7 @@
+# мусорные файлы
+*_old
+*_backup
+*.bak
+*.DS_Store
+*.class
+Thumbs.db

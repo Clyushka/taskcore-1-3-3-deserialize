@@ -1,0 +1,13 @@
+Install in folder: C:\Users\klush\IdeaProjects\TaskCore-1-3-1-Install\Games\
+
+Games\src\ was created at 2022-03-21 21:36:27.232
+Games\src\main\ was created at 2022-03-21 21:36:27.263
+Games\src\main\Main.java was created at 2022-03-21 21:36:27.263
+Games\src\main\Utils.java was created at 2022-03-21 21:36:27.263
+Games\res\ was created at 2022-03-21 21:36:27.263
+Games\res\drawables\ was created at 2022-03-21 21:36:27.263
+Games\res\vectors\ was created at 2022-03-21 21:36:27.263
+Games\res\icons\ was created at 2022-03-21 21:36:27.279
+Games\savegames\ was created at 2022-03-21 21:36:27.279
+Games\temp\ was created at 2022-03-21 21:36:27.279
+Games\temp\temp.txt was created at 2022-03-21 21:36:27.279
